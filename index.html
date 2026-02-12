@@ -15,7 +15,7 @@
     .card{
       background:white; padding:28px 22px; border-radius:22px;
       box-shadow:0 12px 35px rgba(0,0,0,.10);
-      text-align:center; max-width:500px; width:100%;
+      text-align:center; max-width:520px; width:100%;
       position:relative;
     }
     h1{ margin:0 0 8px; font-size:28px; }
@@ -58,20 +58,24 @@
       display:none;
     }
 
-    /* meme / images */
-    .memeWrap{ margin:10px 0 14px; }
+    /* victory image */
+    .memeWrap{ margin:14px 0 0; display:none; }
     .meme{
       width:100%;
-      max-width:340px;
+      max-width:430px;
       border-radius:18px;
-      box-shadow:0 10px 25px rgba(0,0,0,.10);
+      box-shadow:0 14px 40px rgba(0,0,0,.16);
       display:block;
       margin:0 auto;
     }
-    .memeCap{
-      font-size:13px;
-      opacity:.75;
-      margin-top:8px;
+    /* smooth reveal */
+    .popIn{
+      animation: pop 420ms ease-out forwards;
+      transform: scale(0.92);
+      opacity: 0;
+    }
+    @keyframes pop{
+      to{ transform: scale(1); opacity: 1; }
     }
 
     /* envelope */
@@ -132,16 +136,9 @@
     <div class="heart">💘</div>
     <h1>Amirahimaan</h1>
 
-    <!-- Meme: upload a file named "happy.png" to the repo root -->
-    <div class="memeWrap">
-      <img class="meme" src="happy.png" alt="Baila happy meme"
-           onerror="this.style.display='none'; document.getElementById('memeCap').style.display='none';">
-      <div class="memeCap" id="memeCap">me after you click yes (as you should)</div>
-    </div>
-
     <!-- QUIZ STAGE -->
     <div id="quizStage">
-      <p class="sub" id="quizQ">Did you survive chem?</p>
+      <p class="sub" id="quizQ">Did you cook on chem?</p>
       <div class="btns" id="quizBtns"></div>
       <div id="msg"></div>
     </div>
@@ -171,12 +168,9 @@
 
       <div id="finalMsg" style="margin-top:14px; font-size:18px; min-height:26px;"></div>
 
-      <!-- Fortnite scoreboard: upload as "scoreboard.png" (hidden until Yes) -->
-      <div id="scoreWrap" style="display:none; margin-top:14px;">
-        <img class="meme" src="scoreboard.png" alt="Baila: 1 Valentine: 0"
-             style="max-width:420px;"
-             onerror="this.style.display='none';">
-        <div class="memeCap" style="margin-top:8px;">LOCKED IN 😭</div>
+      <!-- Upload your PNG as: victory.png (root of repo). Hidden until she clicks Yes -->
+      <div class="memeWrap" id="victoryWrap">
+        <img class="meme" id="victoryImg" src="victory.png" alt="#1 Victory Royale">
       </div>
     </div>
 
@@ -266,6 +260,25 @@
       }
     }
 
+    function showVictory() {
+      const wrap = document.getElementById("victoryWrap");
+      const img = document.getElementById("victoryImg");
+      if (!wrap || !img) return;
+
+      // if file missing, just don't show it
+      img.onerror = () => { wrap.style.display = "none"; };
+
+      wrap.style.display = "block";
+      img.classList.remove("popIn"); // reset if re-run
+      void img.offsetWidth; // reflow to restart animation
+      img.classList.add("popIn");
+    }
+
+    function hideVictory() {
+      const wrap = document.getElementById("victoryWrap");
+      if (wrap) wrap.style.display = "none";
+    }
+
     function yes() {
       const yesBtn = document.getElementById("yesBtn");
       const noBtn = document.getElementById("noBtn");
@@ -273,6 +286,8 @@
       noBtn.disabled = true;
       yesBtn.style.opacity = 0.75;
       noBtn.style.opacity = 0.5;
+
+      hideVictory();
 
       setProgress(20, "processing your answer…");
       setTimeout(() => setProgress(55, "checking if you’re serious…"), 450);
@@ -282,19 +297,13 @@
         document.getElementById("finalMsg").textContent =
           "YAYYYYY 💗💗💗💗💗 That was a very very very^3 smart decision from a pretty smart person Amirah.";
         confettiBurst();
-
-        // show Fortnite scoreboard ONLY after Yes
-        const score = document.getElementById("scoreWrap");
-        if (score) score.style.display = "block";
+        showVictory();
       }, 1250);
     }
 
     function no() {
       noCount += 1;
-
-      // ensure scoreboard stays hidden if she's clicking No
-      const score = document.getElementById("scoreWrap");
-      if (score) score.style.display = "none";
+      hideVictory();
 
       // shrink the no button each click
       noScale = Math.max(0.55, noScale - 0.12);
@@ -315,10 +324,7 @@
       const y = (Math.random() * 40) - 20;
       btn.style.transform = `scale(${noScale}) translate(${x}px, ${y}px)`;
 
-      // after a few clicks, make it basically impossible to hit
-      if (noCount >= 4) {
-        btn.style.opacity = 0.7;
-      }
+      if (noCount >= 4) btn.style.opacity = 0.7;
     }
   </script>
 </body>
