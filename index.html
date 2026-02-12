@@ -10,53 +10,280 @@
       display:flex; min-height:100vh; align-items:center; justify-content:center;
       background: linear-gradient(135deg,#fff1f6,#f3f5ff);
       margin:0; padding:18px;
+      overflow:hidden;
     }
     .card{
       background:white; padding:28px 22px; border-radius:22px;
       box-shadow:0 12px 35px rgba(0,0,0,.10);
-      text-align:center; max-width:460px; width:100%;
+      text-align:center; max-width:500px; width:100%;
+      position:relative;
     }
     h1{ margin:0 0 8px; font-size:28px; }
-    .sub{ margin:0 0 18px; font-size:18px; opacity:.9; }
+    .sub{ margin:0 0 14px; font-size:18px; opacity:.92; line-height:1.35; }
     .btns{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
     button{
       border:0; padding:12px 16px; border-radius:14px;
       font-size:16px; cursor:pointer;
+      transition: transform 180ms ease, opacity 180ms ease, filter 180ms ease;
     }
+    button:hover{ filter: brightness(0.98); }
     .yes{ background:#ff3b7a; color:white; }
+    .alt{ background:#ffe1ec; }
     .no{ background:#f3f3f3; }
-    #msg{ margin-top:16px; font-size:18px; min-height:26px; }
-    .tiny{ margin-top:10px; font-size:13px; opacity:.7; }
-    .heart{ font-size:26px; }
+    #msg{ margin-top:14px; font-size:18px; min-height:26px; }
+
+    .tiny{ margin-top:12px; font-size:13px; opacity:.7; }
+    .heart{ font-size:26px; margin-bottom:6px; }
+
+    /* progress bar */
+    .progressWrap{
+      height:10px;
+      background:#f2f2f2;
+      border-radius:999px;
+      overflow:hidden;
+      margin:14px 0 6px;
+      display:none;
+    }
+    .progressBar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, #ff3b7a, #ff9bbd);
+      border-radius:999px;
+      transition: width 250ms ease;
+    }
+    .progressText{
+      font-size:13px;
+      opacity:.75;
+      margin:0 0 10px;
+      display:none;
+    }
+
+    /* meme */
+    .memeWrap{ margin:10px 0 14px; }
+    .meme{
+      width:100%;
+      max-width:340px;
+      border-radius:18px;
+      box-shadow:0 10px 25px rgba(0,0,0,.10);
+      display:block;
+      margin:0 auto;
+    }
+    .memeCap{
+      font-size:13px;
+      opacity:.75;
+      margin-top:8px;
+    }
+
+    /* envelope */
+    .envelopeStage{
+      display:none;
+      margin:16px auto 4px;
+      width:100%;
+      max-width:360px;
+    }
+    .envelopeBtn{
+      width:100%;
+      border:0;
+      padding:16px 16px;
+      border-radius:18px;
+      cursor:pointer;
+      background: linear-gradient(135deg,#fff6fa,#f3f5ff);
+      box-shadow:0 12px 30px rgba(0,0,0,.10);
+      position:relative;
+    }
+    .envTop{
+      font-size:44px;
+      line-height:1;
+      margin-bottom:6px;
+    }
+    .envText{
+      font-size:16px;
+      opacity:.9;
+      line-height:1.35;
+    }
+    .envHint{
+      font-size:13px;
+      opacity:.7;
+      margin-top:8px;
+    }
+
+    /* confetti */
+    .confetti{
+      position:fixed;
+      top:-12px;
+      width:10px;
+      height:14px;
+      border-radius:3px;
+      opacity:0.95;
+      pointer-events:none;
+      animation: fall linear forwards;
+      z-index:9999;
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(720deg);
+        opacity:1;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="heart">💘</div>
     <h1>Amirahimaan</h1>
-    <p class="sub">Will you be my Valentine?</p>
 
-    <div class="btns">
-      <button class="yes" onclick="yes()">Yes</button>
-      <button class="no" id="noBtn" onclick="no()">No</button>
+    <!-- Meme: upload a file named "happy.png" to the repo root -->
+    <div class="memeWrap">
+      <img class="meme" src="happy.png" alt="Baila happy meme"
+           onerror="this.style.display='none'; document.getElementById('memeCap').style.display='none';">
+      <div class="memeCap" id="memeCap">me after you click yes (as you should)</div>
     </div>
 
-    <div id="msg"></div>
+    <!-- QUIZ STAGE -->
+    <div id="quizStage">
+      <p class="sub" id="quizQ">Did you survive chem?</p>
+      <div class="btns" id="quizBtns"></div>
+      <div id="msg"></div>
+    </div>
+
+    <!-- ENVELOPE STAGE -->
+    <div class="envelopeStage" id="envelopeStage">
+      <button class="envelopeBtn" onclick="openEnvelope()">
+        <div class="envTop">💌</div>
+        <div class="envText">Okay… last thing.<br/>Open this.</div>
+        <div class="envHint">(tap the envelope)</div>
+      </button>
+    </div>
+
+    <!-- VALENTINE STAGE -->
+    <div id="valentineStage" style="display:none;">
+      <p class="sub" style="font-weight:600;">Will you be my Valentine?</p>
+
+      <div class="progressWrap" id="progressWrap">
+        <div class="progressBar" id="progressBar"></div>
+      </div>
+      <div class="progressText" id="progressText">processing your answer…</div>
+
+      <div class="btns">
+        <button class="yes" id="yesBtn" onclick="yes()">Yes</button>
+        <button class="no" id="noBtn" onclick="no()">No</button>
+      </div>
+
+      <div id="finalMsg" style="margin-top:14px; font-size:18px; min-height:26px;"></div>
+    </div>
+
     <div class="tiny">from Baila 🤍</div>
   </div>
 
   <script>
+    // ---------- QUIZ FLOW ----------
+    const quizQ = document.getElementById("quizQ");
+    const quizBtns = document.getElementById("quizBtns");
+    const msg = document.getElementById("msg");
+
+    const steps = [
+      {
+        q: "Did you survive chem?",
+        answers: [
+          { label: "Yes 😭", nextMsg: "okay good. you did that 🫡" },
+          { label: "Barely 😵‍💫", nextMsg: "still proud of you. you’re different fr." }
+        ]
+      },
+      {
+        q: "Do you like Baila?",
+        answers: [
+          { label: "Yes", nextMsg: "as you should 😌" },
+          { label: "Be serious 😭", nextMsg: "exactly. thank you." }
+        ]
+      }
+    ];
+
+    let stepIndex = 0;
+
+    function renderStep() {
+      quizQ.textContent = steps[stepIndex].q;
+      quizBtns.innerHTML = "";
+      steps[stepIndex].answers.forEach((a) => {
+        const b = document.createElement("button");
+        b.className = a.label.includes("Be serious") ? "alt" : "no";
+        b.textContent = a.label;
+        b.onclick = () => {
+          msg.textContent = a.nextMsg;
+          setTimeout(() => {
+            stepIndex++;
+            if (stepIndex >= steps.length) {
+              document.getElementById("quizStage").style.display = "none";
+              document.getElementById("envelopeStage").style.display = "block";
+            } else {
+              renderStep();
+            }
+          }, 650);
+        };
+        quizBtns.appendChild(b);
+      });
+    }
+    renderStep();
+
+    function openEnvelope(){
+      document.getElementById("envelopeStage").style.display = "none";
+      document.getElementById("valentineStage").style.display = "block";
+    }
+
+    // ---------- PROGRESS + CONFETTI + BUTTONS ----------
     let noCount = 0;
+    let noScale = 1;
+
+    function setProgress(pct, text){
+      const wrap = document.getElementById("progressWrap");
+      const bar = document.getElementById("progressBar");
+      const t = document.getElementById("progressText");
+      wrap.style.display = "block";
+      t.style.display = "block";
+      bar.style.width = pct + "%";
+      if (text) t.textContent = text;
+    }
+
+    function confettiBurst() {
+      const pieces = 120;
+      for (let i = 0; i < pieces; i++) {
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.left = (Math.random() * 100) + "vw";
+        c.style.background = `hsl(${Math.random()*360}, 90%, 65%)`;
+        c.style.animationDuration = (2.2 + Math.random() * 1.6) + "s";
+        c.style.width = (6 + Math.random() * 8) + "px";
+        c.style.height = (8 + Math.random() * 10) + "px";
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4500);
+      }
+    }
 
     function yes() {
-      document.getElementById("msg").textContent =
-        "YAYYYYY 💗💗💗💗💗That was a very very very^3 smart decision from a pretty smart person Amirah.";
-      document.getElementById("noBtn").disabled = true;
-      document.getElementById("noBtn").style.opacity = 0.5;
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+      yesBtn.style.opacity = 0.75;
+      noBtn.style.opacity = 0.5;
+
+      setProgress(20, "processing your answer…");
+      setTimeout(() => setProgress(55, "checking if you’re serious…"), 450);
+      setTimeout(() => setProgress(85, "validating pretty + smart combo…"), 900);
+      setTimeout(() => {
+        setProgress(100, "approved ✅");
+        document.getElementById("finalMsg").textContent =
+          "YAYYYYY 💗💗💗💗💗 That was a very very very^3 smart decision from a pretty smart person Amirah.";
+        confettiBurst();
+      }, 1250);
     }
 
     function no() {
       noCount += 1;
+
+      // shrink the no button each click
+      noScale = Math.max(0.55, noScale - 0.12);
+      const btn = document.getElementById("noBtn");
+
       const lines = [
         "lmao okay lock in😅",
         "okay you might be tweaking ngl😌",
@@ -64,13 +291,20 @@
         "maybe i messed the code up😭",
         "alright you win… you can try again tho🫣"
       ];
-      document.getElementById("msg").textContent = lines[Math.min(noCount - 1, lines.length - 1)];
+      document.getElementById("finalMsg").textContent =
+        lines[Math.min(noCount - 1, lines.length - 1)];
 
-      const btn = document.getElementById("noBtn");
-      const x = (Math.random() * 120) - 60;
-      const y = (Math.random() * 80) - 40;
-      btn.style.transform = `translate(${x}px, ${y}px)`;
+      // tiny nudge so it feels alive
+      const x = (Math.random() * 60) - 30;
+      const y = (Math.random() * 40) - 20;
+      btn.style.transform = `scale(${noScale}) translate(${x}px, ${y}px)`;
+
+      // after a few clicks, make it basically impossible to hit
+      if (noCount >= 4) {
+        btn.style.opacity = 0.7;
+      }
     }
   </script>
 </body>
 </html>
+
