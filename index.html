@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Amirahimaan 💘</title>
+  <style>
+    body{
+      font-family: system-ui, -apple-system, Arial;
+      display:flex; min-height:100vh; align-items:center; justify-content:center;
+      background: linear-gradient(135deg,#fff1f6,#f3f5ff);
+      margin:0; padding:18px;
+    }
+    .card{
+      background:white; padding:28px 22px; border-radius:22px;
+      box-shadow:0 12px 35px rgba(0,0,0,.10);
+      text-align:center; max-width:460px; width:100%;
+    }
+    h1{ margin:0 0 8px; font-size:28px; }
+    .sub{ margin:0 0 18px; font-size:18px; opacity:.9; }
+    .btns{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    button{
+      border:0; padding:12px 16px; border-radius:14px;
+      font-size:16px; cursor:pointer;
+    }
+    .yes{ background:#ff3b7a; color:white; }
+    .no{ background:#f3f3f3; }
+    #msg{ margin-top:16px; font-size:18px; min-height:26px; }
+    .tiny{ margin-top:10px; font-size:13px; opacity:.7; }
+    .heart{ font-size:26px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="heart">💘</div>
+    <h1>Amirahimaan</h1>
+    <p class="sub">Will you be my Valentine?</p>
+
+    <div class="btns">
+      <button class="yes" onclick="yes()">Yes</button>
+      <button class="no" id="noBtn" onclick="no()">No</button>
+    </div>
+
+    <div id="msg"></div>
+    <div class="tiny">from Baila 🤍</div>
+  </div>
+
+  <script>
+    let noCount = 0;
+
+    function yes() {
+      document.getElementById("msg").textContent =
+        "YAY 😭💞 Okay it’s official. I can’t wait to spoil you, Amirahimaan.";
+      document.getElementById("noBtn").disabled = true;
+      document.getElementById("noBtn").style.opacity = 0.5;
+    }
+
+    function no() {
+      noCount += 1;
+      const lines = [
+        "hmmm are you sure 😅",
+        "okay but like… think again 😌",
+        "I’m gonna ask nicely one more time 🥺",
+        "you’re really testing me 😭",
+        "alright you win… but I’m still bringing flowers 🌹"
+      ];
+      document.getElementById("msg").textContent = lines[Math.min(noCount - 1, lines.length - 1)];
+
+      const btn = document.getElementById("noBtn");
+      const x = (Math.random() * 120) - 60;
+      const y = (Math.random() * 80) - 40;
+      btn.style.transform = `translate(${x}px, ${y}px)`;
+    }
+  </script>
+</body>
+</html>
