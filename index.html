@@ -58,7 +58,7 @@
       display:none;
     }
 
-    /* meme */
+    /* meme / images */
     .memeWrap{ margin:10px 0 14px; }
     .meme{
       width:100%;
@@ -170,6 +170,14 @@
       </div>
 
       <div id="finalMsg" style="margin-top:14px; font-size:18px; min-height:26px;"></div>
+
+      <!-- Fortnite scoreboard: upload as "scoreboard.png" (hidden until Yes) -->
+      <div id="scoreWrap" style="display:none; margin-top:14px;">
+        <img class="meme" src="scoreboard.png" alt="Baila: 1 Valentine: 0"
+             style="max-width:420px;"
+             onerror="this.style.display='none';">
+        <div class="memeCap" style="margin-top:8px;">LOCKED IN 😭</div>
+      </div>
     </div>
 
     <div class="tiny">from Baila 🤍</div>
@@ -274,11 +282,19 @@
         document.getElementById("finalMsg").textContent =
           "YAYYYYY 💗💗💗💗💗 That was a very very very^3 smart decision from a pretty smart person Amirah.";
         confettiBurst();
+
+        // show Fortnite scoreboard ONLY after Yes
+        const score = document.getElementById("scoreWrap");
+        if (score) score.style.display = "block";
       }, 1250);
     }
 
     function no() {
       noCount += 1;
+
+      // ensure scoreboard stays hidden if she's clicking No
+      const score = document.getElementById("scoreWrap");
+      if (score) score.style.display = "none";
 
       // shrink the no button each click
       noScale = Math.max(0.55, noScale - 0.12);
@@ -307,4 +323,3 @@
   </script>
 </body>
 </html>
-
