@@ -25,6 +25,7 @@
       border:0; padding:12px 16px; border-radius:14px;
       font-size:16px; cursor:pointer;
       transition: transform 180ms ease, opacity 180ms ease, filter 180ms ease;
+      will-change: transform;
     }
     button:hover{ filter: brightness(0.98); }
     .yes{ background:#ff3b7a; color:white; }
@@ -33,6 +34,16 @@
 
     .tiny{ margin-top:12px; font-size:13px; opacity:.7; }
     .heart{ font-size:26px; margin-bottom:6px; }
+
+    /* subtle button bounce */
+    .bounce{
+      animation: bounce 240ms ease-out;
+    }
+    @keyframes bounce{
+      0%{ transform: scale(1); }
+      45%{ transform: scale(1.06); }
+      100%{ transform: scale(1); }
+    }
 
     /* envelope */
     .envelopeStage{
@@ -49,6 +60,29 @@
       cursor:pointer;
       background: linear-gradient(135deg,#fff6fa,#f3f5ff);
       box-shadow:0 12px 30px rgba(0,0,0,.10);
+    }
+
+    /* fake loading bar */
+    .progressWrap{
+      height:10px;
+      background:#f2f2f2;
+      border-radius:999px;
+      overflow:hidden;
+      margin:14px 0 6px;
+      display:none;
+    }
+    .progressBar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, #ff3b7a, #ff9bbd);
+      border-radius:999px;
+      transition: width 260ms ease;
+    }
+    .progressText{
+      font-size:13px;
+      opacity:.75;
+      margin:0 0 10px;
+      display:none;
     }
 
     /* victory image */
@@ -80,9 +114,7 @@
       z-index:9999;
     }
     @keyframes fall{
-      to{
-        transform: translateY(110vh) rotate(720deg);
-      }
+      to{ transform: translateY(110vh) rotate(720deg); }
     }
   </style>
 </head>
@@ -100,7 +132,7 @@
 
     <!-- ENVELOPE STAGE -->
     <div class="envelopeStage" id="envelopeStage">
-      <button class="envelopeBtn" onclick="openEnvelope()">
+      <button class="envelopeBtn" onclick="openEnvelope(); bounce(this);">
         💌 Open this
       </button>
     </div>
@@ -109,15 +141,22 @@
     <div id="valentineStage" style="display:none;">
       <p class="sub" style="font-weight:600;">Will you be my Valentine?</p>
 
+      <!-- loading bar -->
+      <div class="progressWrap" id="progressWrap">
+        <div class="progressBar" id="progressBar"></div>
+      </div>
+      <div class="progressText" id="progressText">processing your answer…</div>
+
       <div class="btns">
-        <button class="yes" onclick="yes()">Yes</button>
-        <button class="no" onclick="no()">No</button>
+        <button class="yes" id="yesBtn" onclick="yes(); bounce(this);">Yes</button>
+        <button class="no" id="noBtn" onclick="no(); bounce(this);">No</button>
       </div>
 
-      <div id="finalMsg" style="margin-top:14px; font-size:18px;"></div>
+      <div id="finalMsg" style="margin-top:14px; font-size:18px; min-height:26px;"></div>
 
       <div class="memeWrap" id="victoryWrap">
-        <img class="meme" src="victory.png" alt="Victory">
+        <img class="meme" src="victory.png" alt="Victory"
+             onerror="document.getElementById('victoryWrap').style.display='none';">
       </div>
     </div>
 
@@ -125,6 +164,7 @@
   </div>
 
   <script>
+    // ---------- QUIZ FLOW ----------
     const quizQ = document.getElementById("quizQ");
     const quizBtns = document.getElementById("quizBtns");
     const msg = document.getElementById("msg");
@@ -148,15 +188,22 @@
 
     let stepIndex = 0;
 
+    function bounce(el){
+      el.classList.remove("bounce");
+      void el.offsetWidth; // restart animation
+      el.classList.add("bounce");
+    }
+
     function renderStep() {
       quizQ.textContent = steps[stepIndex].q;
       quizBtns.innerHTML = "";
 
       steps[stepIndex].answers.forEach((a, idx) => {
         const b = document.createElement("button");
-        b.className = (idx === 0) ? "yes" : "no";
+        b.className = (idx === 0) ? "yes" : "no"; // first option pink
         b.textContent = a.label;
         b.onclick = () => {
+          bounce(b);
           msg.textContent = a.nextMsg;
           setTimeout(() => {
             stepIndex++;
@@ -171,12 +218,28 @@
         quizBtns.appendChild(b);
       });
     }
-
     renderStep();
 
     function openEnvelope(){
       document.getElementById("envelopeStage").style.display = "none";
       document.getElementById("valentineStage").style.display = "block";
+    }
+
+    // ---------- PROGRESS + CONFETTI + VALENTINE ----------
+    const progressWrap = document.getElementById("progressWrap");
+    const progressBar  = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+
+    function setProgress(pct, text){
+      progressWrap.style.display = "block";
+      progressText.style.display = "block";
+      progressBar.style.width = pct + "%";
+      if (text) progressText.textContent = text;
+    }
+    function hideProgress(){
+      progressWrap.style.display = "none";
+      progressText.style.display = "none";
+      progressBar.style.width = "0%";
     }
 
     function confettiBurst(){
@@ -186,23 +249,65 @@
         c.style.left=Math.random()*100+"vw";
         c.style.background=`hsl(${Math.random()*360},90%,65%)`;
         c.style.animationDuration=(2+Math.random()*1.5)+"s";
+        c.style.width = (6 + Math.random()*8) + "px";
+        c.style.height = (8 + Math.random()*10) + "px";
         document.body.appendChild(c);
         setTimeout(()=>c.remove(),4000);
       }
     }
 
+    let noCount = 0;
+    let noScale = 1;
+
     function yes(){
-      document.getElementById("finalMsg").textContent =
-        "YAYYYYY 💗💗💗💗💗 that was a very very very^3 smart decision.";
-      document.getElementById("victoryWrap").style.display="block";
-      confettiBurst();
+      // lock buttons while "verifying"
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn  = document.getElementById("noBtn");
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+      yesBtn.style.opacity = 0.78;
+      noBtn.style.opacity = 0.55;
+
+      document.getElementById("victoryWrap").style.display = "none";
+      document.getElementById("finalMsg").textContent = "";
+
+      setProgress(18, "processing your answer…");
+      setTimeout(() => setProgress(52, "checking if you’re serious…"), 450);
+      setTimeout(() => setProgress(82, "validating pretty + smart combo…"), 900);
+      setTimeout(() => {
+        setProgress(100, "approved ✅");
+        document.getElementById("finalMsg").textContent =
+          "YAYYYYY 💗💗💗💗💗 that was a very very very^3 smart decision.";
+        document.getElementById("victoryWrap").style.display="block";
+        confettiBurst();
+      }, 1250);
     }
 
     function no(){
+      noCount += 1;
+
+      // shrink + scoot no button each click
+      const btn = document.getElementById("noBtn");
+      noScale = Math.max(0.55, noScale - 0.12);
+
+      const lines = [
+        "lmao okay lock in😅",
+        "okay you might be tweaking ngl😌",
+        "damn its really like that twin 🥺",
+        "maybe i messed the code up😭",
+        "alright you win… you can try again tho🫣"
+      ];
       document.getElementById("finalMsg").textContent =
-        "be serious 😭 try again.";
+        lines[Math.min(noCount - 1, lines.length - 1)];
+
+      const x = (Math.random() * 70) - 35;
+      const y = (Math.random() * 45) - 22;
+      btn.style.transform = `scale(${noScale}) translate(${x}px, ${y}px)`;
+
+      // keep the page clean
+      hideProgress();
+      document.getElementById("victoryWrap").style.display = "none";
     }
   </script>
 </body>
 </html>
-
