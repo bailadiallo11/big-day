@@ -185,17 +185,17 @@
 
     const steps = [
       {
-        q: "Did you survive chem?",
+        q: "Did you cook on chem?",
         answers: [
-          { label: "Yes 😭", nextMsg: "okay good. you did that 🫡" },
-          { label: "Barely 😵‍💫", nextMsg: "still proud of you. you’re different fr." }
+          { label: "Yes ", nextMsg: "yayyyy i knew it. you did that 🫡" },
+          { label: "Next question", nextMsg: "still proud of you. you’re different fr." }
         ]
       },
       {
-        q: "Do you like Baila?",
+        q: "Don't you like Baila sm?",
         answers: [
           { label: "Yes", nextMsg: "as you should 😌" },
-          { label: "Be serious 😭", nextMsg: "exactly. thank you." }
+          { label: "Obviously", nextMsg: "exactly. thank you." }
         ]
       }
     ];
@@ -207,7 +207,7 @@
       quizBtns.innerHTML = "";
       steps[stepIndex].answers.forEach((a) => {
         const b = document.createElement("button");
-        b.className = a.label.includes("Be serious") ? "alt" : "no";
+        b.className = a.label.includes("obviously") ? "alt" : "no";
         b.textContent = a.label;
         b.onclick = () => {
           msg.textContent = a.nextMsg;
@@ -295,7 +295,7 @@
       setTimeout(() => {
         setProgress(100, "approved ✅");
         document.getElementById("finalMsg").textContent =
-          "YAYYYYY 💗💗💗💗💗 That was a very very very^3 smart decision from a pretty smart person Amirah.";
+          "YAYYYYY 💗💗💗💗💗 that was a very very very^3 smart decision from a pretty smart person Amirah.";
         confettiBurst();
         showVictory();
       }, 1250);
