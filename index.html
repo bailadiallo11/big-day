@@ -28,55 +28,11 @@
     }
     button:hover{ filter: brightness(0.98); }
     .yes{ background:#ff3b7a; color:white; }
-    .alt{ background:#ffe1ec; }
     .no{ background:#f3f3f3; }
     #msg{ margin-top:14px; font-size:18px; min-height:26px; }
 
     .tiny{ margin-top:12px; font-size:13px; opacity:.7; }
     .heart{ font-size:26px; margin-bottom:6px; }
-
-    /* progress bar */
-    .progressWrap{
-      height:10px;
-      background:#f2f2f2;
-      border-radius:999px;
-      overflow:hidden;
-      margin:14px 0 6px;
-      display:none;
-    }
-    .progressBar{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, #ff3b7a, #ff9bbd);
-      border-radius:999px;
-      transition: width 250ms ease;
-    }
-    .progressText{
-      font-size:13px;
-      opacity:.75;
-      margin:0 0 10px;
-      display:none;
-    }
-
-    /* victory image */
-    .memeWrap{ margin:14px 0 0; display:none; }
-    .meme{
-      width:100%;
-      max-width:430px;
-      border-radius:18px;
-      box-shadow:0 14px 40px rgba(0,0,0,.16);
-      display:block;
-      margin:0 auto;
-    }
-    /* smooth reveal */
-    .popIn{
-      animation: pop 420ms ease-out forwards;
-      transform: scale(0.92);
-      opacity: 0;
-    }
-    @keyframes pop{
-      to{ transform: scale(1); opacity: 1; }
-    }
 
     /* envelope */
     .envelopeStage{
@@ -88,27 +44,27 @@
     .envelopeBtn{
       width:100%;
       border:0;
-      padding:16px 16px;
+      padding:16px;
       border-radius:18px;
       cursor:pointer;
       background: linear-gradient(135deg,#fff6fa,#f3f5ff);
       box-shadow:0 12px 30px rgba(0,0,0,.10);
-      position:relative;
     }
-    .envTop{
-      font-size:44px;
-      line-height:1;
-      margin-bottom:6px;
+
+    /* victory image */
+    .memeWrap{ margin-top:16px; display:none; }
+    .meme{
+      width:100%;
+      max-width:420px;
+      border-radius:18px;
+      box-shadow:0 14px 40px rgba(0,0,0,.16);
+      margin:0 auto;
+      display:block;
+      animation: pop 420ms ease-out forwards;
     }
-    .envText{
-      font-size:16px;
-      opacity:.9;
-      line-height:1.35;
-    }
-    .envHint{
-      font-size:13px;
-      opacity:.7;
-      margin-top:8px;
+    @keyframes pop{
+      from{ transform:scale(.92); opacity:0; }
+      to{ transform:scale(1); opacity:1; }
     }
 
     /* confetti */
@@ -126,7 +82,6 @@
     @keyframes fall{
       to{
         transform: translateY(110vh) rotate(720deg);
-        opacity:1;
       }
     }
   </style>
@@ -138,7 +93,7 @@
 
     <!-- QUIZ STAGE -->
     <div id="quizStage">
-      <p class="sub" id="quizQ">Did you cook on chem?</p>
+      <p class="sub" id="quizQ"></p>
       <div class="btns" id="quizBtns"></div>
       <div id="msg"></div>
     </div>
@@ -146,9 +101,7 @@
     <!-- ENVELOPE STAGE -->
     <div class="envelopeStage" id="envelopeStage">
       <button class="envelopeBtn" onclick="openEnvelope()">
-        <div class="envTop">💌</div>
-        <div class="envText">Okay… last thing.<br/>Open this.</div>
-        <div class="envHint">(tap the envelope)</div>
+        💌 Open this
       </button>
     </div>
 
@@ -156,21 +109,15 @@
     <div id="valentineStage" style="display:none;">
       <p class="sub" style="font-weight:600;">Will you be my Valentine?</p>
 
-      <div class="progressWrap" id="progressWrap">
-        <div class="progressBar" id="progressBar"></div>
-      </div>
-      <div class="progressText" id="progressText">processing your answer…</div>
-
       <div class="btns">
-        <button class="yes" id="yesBtn" onclick="yes()">Yes</button>
-        <button class="no" id="noBtn" onclick="no()">No</button>
+        <button class="yes" onclick="yes()">Yes</button>
+        <button class="no" onclick="no()">No</button>
       </div>
 
-      <div id="finalMsg" style="margin-top:14px; font-size:18px; min-height:26px;"></div>
+      <div id="finalMsg" style="margin-top:14px; font-size:18px;"></div>
 
-      <!-- Upload your PNG as: victory.png (root of repo). Hidden until she clicks Yes -->
       <div class="memeWrap" id="victoryWrap">
-        <img class="meme" id="victoryImg" src="victory.png" alt="#1 Victory Royale">
+        <img class="meme" src="victory.png" alt="Victory">
       </div>
     </div>
 
@@ -178,7 +125,6 @@
   </div>
 
   <script>
-    // ---------- QUIZ FLOW ----------
     const quizQ = document.getElementById("quizQ");
     const quizBtns = document.getElementById("quizBtns");
     const msg = document.getElementById("msg");
@@ -187,12 +133,12 @@
       {
         q: "Did you cook on chem?",
         answers: [
-          { label: "Yes ", nextMsg: "yayyyy i knew it. you did that 🫡" },
-          { label: "Next question", nextMsg: "still proud of you. you’re different fr." }
+          { label: "Yes 😭", nextMsg: "I knew it. you did that 🫡" },
+          { label: "Next question", nextMsg: "still proud of you regardless." }
         ]
       },
       {
-        q: "Don't you like Baila sm?",
+        q: "You like Baila right?",
         answers: [
           { label: "Yes", nextMsg: "as you should 😌" },
           { label: "Obviously", nextMsg: "exactly. thank you." }
@@ -205,9 +151,10 @@
     function renderStep() {
       quizQ.textContent = steps[stepIndex].q;
       quizBtns.innerHTML = "";
-      steps[stepIndex].answers.forEach((a) => {
+
+      steps[stepIndex].answers.forEach((a, idx) => {
         const b = document.createElement("button");
-        b.className = a.label.includes("obviously") ? "alt" : "no";
+        b.className = (idx === 0) ? "yes" : "no";
         b.textContent = a.label;
         b.onclick = () => {
           msg.textContent = a.nextMsg;
@@ -224,6 +171,7 @@
         quizBtns.appendChild(b);
       });
     }
+
     renderStep();
 
     function openEnvelope(){
@@ -231,101 +179,30 @@
       document.getElementById("valentineStage").style.display = "block";
     }
 
-    // ---------- PROGRESS + CONFETTI + BUTTONS ----------
-    let noCount = 0;
-    let noScale = 1;
-
-    function setProgress(pct, text){
-      const wrap = document.getElementById("progressWrap");
-      const bar = document.getElementById("progressBar");
-      const t = document.getElementById("progressText");
-      wrap.style.display = "block";
-      t.style.display = "block";
-      bar.style.width = pct + "%";
-      if (text) t.textContent = text;
-    }
-
-    function confettiBurst() {
-      const pieces = 120;
-      for (let i = 0; i < pieces; i++) {
-        const c = document.createElement("div");
-        c.className = "confetti";
-        c.style.left = (Math.random() * 100) + "vw";
-        c.style.background = `hsl(${Math.random()*360}, 90%, 65%)`;
-        c.style.animationDuration = (2.2 + Math.random() * 1.6) + "s";
-        c.style.width = (6 + Math.random() * 8) + "px";
-        c.style.height = (8 + Math.random() * 10) + "px";
+    function confettiBurst(){
+      for(let i=0;i<120;i++){
+        const c=document.createElement("div");
+        c.className="confetti";
+        c.style.left=Math.random()*100+"vw";
+        c.style.background=`hsl(${Math.random()*360},90%,65%)`;
+        c.style.animationDuration=(2+Math.random()*1.5)+"s";
         document.body.appendChild(c);
-        setTimeout(() => c.remove(), 4500);
+        setTimeout(()=>c.remove(),4000);
       }
     }
 
-    function showVictory() {
-      const wrap = document.getElementById("victoryWrap");
-      const img = document.getElementById("victoryImg");
-      if (!wrap || !img) return;
-
-      // if file missing, just don't show it
-      img.onerror = () => { wrap.style.display = "none"; };
-
-      wrap.style.display = "block";
-      img.classList.remove("popIn"); // reset if re-run
-      void img.offsetWidth; // reflow to restart animation
-      img.classList.add("popIn");
-    }
-
-    function hideVictory() {
-      const wrap = document.getElementById("victoryWrap");
-      if (wrap) wrap.style.display = "none";
-    }
-
-    function yes() {
-      const yesBtn = document.getElementById("yesBtn");
-      const noBtn = document.getElementById("noBtn");
-      yesBtn.disabled = true;
-      noBtn.disabled = true;
-      yesBtn.style.opacity = 0.75;
-      noBtn.style.opacity = 0.5;
-
-      hideVictory();
-
-      setProgress(20, "processing your answer…");
-      setTimeout(() => setProgress(55, "checking if you’re serious…"), 450);
-      setTimeout(() => setProgress(85, "validating pretty + smart combo…"), 900);
-      setTimeout(() => {
-        setProgress(100, "approved ✅");
-        document.getElementById("finalMsg").textContent =
-          "YAYYYYY 💗💗💗💗💗 that was a very very very^3 smart decision from a pretty smart person Amirah.";
-        confettiBurst();
-        showVictory();
-      }, 1250);
-    }
-
-    function no() {
-      noCount += 1;
-      hideVictory();
-
-      // shrink the no button each click
-      noScale = Math.max(0.55, noScale - 0.12);
-      const btn = document.getElementById("noBtn");
-
-      const lines = [
-        "lmao okay lock in😅",
-        "okay you might be tweaking ngl😌",
-        "damn its really like that twin 🥺",
-        "maybe i messed the code up😭",
-        "alright you win… you can try again tho🫣"
-      ];
+    function yes(){
       document.getElementById("finalMsg").textContent =
-        lines[Math.min(noCount - 1, lines.length - 1)];
+        "YAYYYYY 💗💗💗💗💗 that was a very very very^3 smart decision.";
+      document.getElementById("victoryWrap").style.display="block";
+      confettiBurst();
+    }
 
-      // tiny nudge so it feels alive
-      const x = (Math.random() * 60) - 30;
-      const y = (Math.random() * 40) - 20;
-      btn.style.transform = `scale(${noScale}) translate(${x}px, ${y}px)`;
-
-      if (noCount >= 4) btn.style.opacity = 0.7;
+    function no(){
+      document.getElementById("finalMsg").textContent =
+        "be serious 😭 try again.";
     }
   </script>
 </body>
 </html>
+
